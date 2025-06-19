@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Самураи</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="bootstrap-5.3.3/css/bootstrap.css">
+    <link rel="icon" href="media/icon.png">
+</head>
+<body style="background-color: #220808;">
+    <nav class="navbar navbar-expand-lg fixed-top">
+        <div class="container">
+            <a class="navbar-brand" href="#">
+                <img src="media/logo.png" alt="Логотип">
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="#photo">ГЛАВНАЯ</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#kult">КУЛЬТУРА</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#nos">НОСИТЕЛИ</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#geo">НАЧАЛО</a>
+                    </li>
+            </div>
+        </div>
+    </nav>
+    <section class="hero-section">
+        <video autoplay muted loop class="video-background">
+            <source src="media/sam.mp4" type="video/mp4">
+        </video>
+        <div class="container hero-content">
+            <div class="row d-flex">
+                <div class="col-12 col-lg-8 mx-auto text-center text-lg-start">
+                    <h1 class="fw-bold mb-4" style="color: black; font-family: Japan; font-size: 6rem;">Самураи</h1>
+                </div>
+            </div>
+        </div>
+    </section>
+    <section class="feature-block" style="background: url('media/fonn2.jpg');">
+        <div class="container" id="photo">
+            <div class="row align-items-center">
+                <div class="col-lg-7">
+                    <div class="container-fluid">
+                        <div class="row justify-content-center">
+                            <div class="col-md-8 col-lg-10 text-center">
+                                <div class="fire-frame-container">
+                                    <div class="fire-border" id="fireBorder" style="display: none;"></div>
+                                    <div class="image-wrapper">
+                                        <img src="media/samurai.png" alt="Самурай" class="feature-img"
+                                            id="featureImage">
+                                    </div>
+                                </div>
+                                <div class="controls">
+                                    <button class="btn btn-danger" id="toggleFire">Переключить режим огня</button>
+                                    <button class="btn btn-warning ms-2" id="intensityFire">Усилить пламя</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-5">
+                    <div class="content-wrapper">
+                        <h2 class="feature-title" style="font-size: 5rem;color: white;">САМУРАЙ</h2>
+                        <p class="feature-text" style="text-align: justify;color: white;font-size: 1.75rem;">
+                            Самурайство зародилось в результате реформ Тайка 646 года, которые были проведены как
+                            попытка перенять политическую, бюрократическую и военную структуру империи Тан. Наибольший
+                            же толчок к развитию даймё и самураев как класса дал император Камму в конце VIII — начале
+                            IX века, обратившись за помощью к региональным кланам в борьбе против айнов.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <div class="container py-5" id="kult">
+        <div class="row">
+            <div class="col-12 text-center mb-5 position-relative overflow-hidden rounded-3" style="height: 300px;">
+                <div class="position-absolute top-0 start-0 w-100 h-100">
+                    <img src="media/vit.png" alt="Фон самурай" class="w-100 h-100 object-fit-cover"
+                        style="filter: brightness(0.5);">
+                </div>
+                <div class="position-relative h-100 d-flex flex-column justify-content-center align-items-center text-white px-3"
+                    style="z-index: 2;">
+                    <h2 class="display-4 fw-bold mb-3">Самурайская культура</h2>
+                    <p class="lead fs-3">Искусство и традиции воинов Японии</p>
+                </div>
+            </div>
+        </div>
+        <div class="row g-4 position-relative">
+            <div class="col-md-6 col-lg-3">
+                <div class="card h-100 border-0 shadow-sm card-expandable" style="background-color: #220808;">
+                    <img src="media/katana.webp" class="card-img-top" alt="Катана">
+                    <div class="card-body">
+                        <h5 class="card-title" style="color: white;">Катана</h5>
+                        <p class="card-text" style="color: white;">Легендарный меч самурая, символ чести и мастерства.
+                            Изготовление катаны считалось священным искусством.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-3">
+                <div class="card h-100 border-0 shadow-sm card-expandable" style="background-color: #220808;">
+                    <img src="media/busido.webp" class="card-img-top" alt="Бусидо">
+                    <div class="card-body">
+                        <h5 class="card-title" style="color: white;">Бусидо</h5>
+                        <p class="card-text" style="color: white;">Кодекс чести самурая, включающий семь добродетелей:
+                            честь, мужество, доброту, вежливость и другие.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-3">
+                <div class="card h-100 border-0 shadow-sm card-expandable" style="background-color: #220808;">
+                    <img src="media/tea.webp" class="card-img-top" alt="Чайная церемония">
+                    <div class="card-body">
+                        <h5 class="card-title" style="color: white;">Чайная церемония</h5>
+                        <p class="card-text" style="color: white;">Самураи практиковали чайные церемонии как способ
+                            достижения гармонии и душевного равновесия.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-3">
+                <div class="card h-100 border-0 shadow-sm card-expandable" style="background-color: #220808;">
+                    <img src="media/dzen.webp" class="card-img-top" alt="Дзен">
+                    <div class="card-body">
+                        <h5 class="card-title" style="color: white;">Дзен-буддизм</h5>
+                        <p class="card-text" style="color: white;">Философия дзен помогала самураям сохранять
+                            хладнокровие в бою и принимать мудрые решения.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row g-4 mt-2 position-relative">
+            <div class="col-md-6 col-lg-4">
+                <div class="card h-100 border-0 shadow-sm card-expandable" style="background-color: #220808;">
+                    <img src="media/armor.jpg" class="card-img-top" alt="Доспехи">
+                    <div class="card-body">
+                        <h4 class="card-title" style="color: white;">Доспехи</h4>
+                        <p class="card-text" style="color: white;">Самурайские доспехи были не только защитой, но и
+                            произведением искусства, отражающим статус владельца.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-4">
+                <div class="card h-100 border-0 shadow-sm card-expandable" style="background-color: #220808;">
+                    <img src="media/kali.jpg" class="card-img-top" alt="Каллиграфия">
+                    <div class="card-body">
+                        <h5 class="card-title" style="color: white;">Каллиграфия</h5>
+                        <p class="card-text" style="color: white;">Многие самураи владели искусством каллиграфии, считая
+                            его способом самосовершенствования.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-12 col-lg-4">
+                <div class="card h-100 border-0 shadow-sm card-expandable" style="background-color: #220808;">
+                    <img src="media/haiky.jpg" class="card-img-top" alt="Хайку">
+                    <div class="card-body">
+                        <h5 class="card-title" style="color: white;">Поэзия хайку</h5>
+                        <p class="card-text" style="color: white;">Самураи сочиняли хайку,выражая в краткой форме
+                            глубокие мысли о природе и человеческой жизни.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="container gallery">
+        <div class="row">
+            <div class="col-12 text-center mb-5 position-relative overflow-hidden rounded-3" style="height: 300px;">
+                <div class="position-absolute top-0 start-0 w-100 h-100">
+                    <img src="media/vit.png" alt="Фон самурай" class="w-100 h-100 object-fit-cover"
+                        style="filter: brightness(0.5);">
+                </div>
+                <div class="position-relative h-100 d-flex flex-column justify-content-center align-items-center text-white px-3"
+                    style="z-index: 2;" id="nos">
+                    <h2 class="display-4 fw-bold mb-3">НОСИТЕЛИ САМУРАЙСТВА</h2>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6 col-lg-3">
+                <div class="gallery-item">
+                    <img src="media/dai.jpg" alt="Даймё" class="gallery-img">
+                    <div class="gallery-caption">
+                        <h3>ДАЙМЁ</h3>
+                        <p>Крупнейшие военные феодалы средневековой Японии, элита среди самураев</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-3">
+                <div class="gallery-item">
+                    <img src="media/xata.jpg" alt="Хатамото" class="gallery-img">
+                    <div class="gallery-caption">
+                        <h3>Хатамото</h3>
+                        <p>Самурай в прямом подчинении сёгуната Токугава в феодальной Японии.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-3">
+                <div class="gallery-item">
+                    <img src="media/ronin.jpg" alt="Ронин" class="gallery-img">
+                    <div class="gallery-caption">
+                        <h3>Ронины</h3>
+                        <p>Деклассированный воин феодального периода Японии</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-3">
+                <div class="gallery-item">
+                    <img src="media/nin.jpg" alt="Ниндзя" class="gallery-img">
+                    <div class="gallery-caption">
+                        <h3>Ниндзя</h3>
+                        <p>Разведчик-диверсант, шпион, лазутчик и наёмный убийца в средневековой Японии.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="text-block" style="width: 80%;margin: auto;border-radius: 25px;padding: 20px;">
+        <div class="container text-content">
+            <div class="typing-text" id="typing-element"></div>
+        </div>
+    </div>
+    <div class="row" style="margin-top: 80px;width: 80%;">
+        <div class="col-12 text-center mb-5 position-relative overflow-hidden rounded-3" style="height: 350px;" id="geo">
+            <div class="position-absolute top-0 start-0 w-100 h-100">
+                <img src="media/vit.png" alt="Фон самурай" class="w-100 h-100 object-fit-cover"
+                    style="filter: brightness(0.5);">
+            </div>
+            <div class="position-relative h-100 d-flex flex-column justify-content-center align-items-center text-white px-3" style="z-index: 2;">
+                <h2 class="display-4 fw-bold mb-3">Древняя япония</h2>
+            </div>
+        </div>
+    </div>
+    <section class="content-block" style="background: url('media/fonn2.jpg');">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-lg-6 col-md-12 order-lg-1 order-md-1 order-2">
+                    <div class="text-content" style="color: white;">
+                        <h2 style="color: white;text-align: center;">ДРЕВНЯЯ ЯПОНИЯ</h2>
+                        <p style="text-align: justify;">Самураи появились в результате реформ Тайка, стартовавших в Стране Восходящего Солнца в 646 году. Эти реформы можно назвать крупнейшими социально-политическими преобразования в истории древней Японии, которые проводились под руководством принца Нака-но Оэ.</p>
+                        <p style="text-align: justify;">Большой толчок к укреплению самурайства дал император Камму в начале девятого века. Этот император обратился за помощью к существующим региональным кланам в войне против айнов — ещё одного народа, который жил на островах Японского архипелага. Айнов, кстати, сейчас осталось всего несколько десятков тысяч.</p>
+                        <p style="text-align: justify;">В X–XII веках в процессе «разборок» феодалов сформировались влиятельные роды. Они имели свои достаточно существенные военные отряды, участники которых лишь номинально состояли на службе у императора. По факту каждый крупный феодал тогда нуждался в хорошо обученных воинах-профессионалах. Ими и стали самураи. В этот период сложились и основы неписаного самурайского кодекса «Путь лука и скакуна», позднее трансформировавшегося в чёткий свод правил «Путь Воина» («Бусидо»).</p>
+                    </div>
+                </div>
+                <div class="col-lg-6 col-md-12 order-lg-2 order-md-2 order-1"   style="display: flex;flex-direction: column;align-items: start;">
+                    <div class="vertical-image-container"   style="display: flex;flex-direction: column;align-items: start;">
+                        <img src="media/japan2.jpg" alt="" class="vertical-image">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <footer style="height: 100px;" style="display: flex; flex-direction: row; justify-content: center;align-items: center;">
+        <p class="name" style="text-align: center; margin: 0; font-size: 1.7rem;background-color: black; border-radius: 25px;width: 30%;margin: auto;">Заряжено <a href="https://vk.com/les_tech" style="list-style-type: none;text-decoration: none;"><img src="media/les.png" alt="" style="width: 65px;"></a> &copy; 2025</p>
+    </footer>
+    <script src="bootstrap-5.3.3/js/bootstrap.bundle.min.js"></script>
+    <script src="script.js"></script>
+</body>
+
+</html>
