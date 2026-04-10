@@ -1,0 +1,321 @@
+package com.example.plechomkplechu.activities;
+
+import android.annotation.SuppressLint;
+import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
+import android.net.Uri;
+import android.os.Bundle;
+import android.util.TypedValue;
+import android.widget.Toast;
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.ViewModelProvider;
+import com.example.plechomkplechu.R;
+import com.example.plechomkplechu.models.SportsSpot;
+import com.example.plechomkplechu.viewmodels.MapViewModel;
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.location.Priority;
+import com.google.android.gms.tasks.CancellationTokenSource;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.yandex.mapkit.MapKitFactory;
+import com.yandex.mapkit.geometry.Point;
+import com.yandex.mapkit.location.FilteringMode;
+import com.yandex.mapkit.location.Location;
+import com.yandex.mapkit.location.LocationListener;
+import com.yandex.mapkit.location.LocationManager;
+import com.yandex.mapkit.location.LocationStatus;
+import com.yandex.mapkit.map.CameraPosition;
+import com.yandex.mapkit.map.MapObjectCollection;
+import com.yandex.mapkit.map.PlacemarkMapObject;
+import com.yandex.mapkit.mapview.MapView;
+import com.yandex.runtime.image.ImageProvider;
+import com.yandex.mapkit.map.MapObjectTapListener;
+import java.util.ArrayList;
+import java.util.List;
+
+public class MapActivity extends AppCompatActivity {
+
+    static {
+        MapKitFactory.setApiKey("882daaab-98e5-4fec-bcbb-9169b377d8f1");
+    }
+
+    private static final int LOCATION_PERMISSION_REQUEST_CODE = 1;
+    private static final float USER_LOCATION_ZOOM = 16.0f;
+
+    private MapView mapView;
+    private MapObjectCollection spotsCollection;
+    private MapObjectCollection userLocationCollection;
+    private MapViewModel viewModel;
+    private FusedLocationProviderClient fusedLocationClient;
+    private LocationManager locationManager;
+    private LocationListener locationListener;
+    private PlacemarkMapObject userLocationPlacemark;
+    private ImageProvider userLocationIconProvider;
+    private Point latestUserPoint;
+    private boolean isLocationUpdatesSubscribed = false;
+
+    private FloatingActionButton btnMyLocation;
+    private FloatingActionButton btnFilter;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        MapKitFactory.initialize(this);
+        setContentView(R.layout.activity_map);
+
+        mapView = findViewById(R.id.mapview);
+        btnMyLocation = findViewById(R.id.btnMyLocation);
+        btnFilter = findViewById(R.id.btnFilter);
+
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+        locationManager = MapKitFactory.getInstance().createLocationManager();
+
+        mapView.getMap().move(new CameraPosition(new Point(52.9703, 36.0630), 14.0f, 0.0f, 0.0f));
+
+        MapObjectCollection rootCollection = mapView.getMap().getMapObjects();
+        spotsCollection = rootCollection.addCollection();
+        userLocationCollection = rootCollection.addCollection();
+
+        viewModel = new ViewModelProvider(this).get(MapViewModel.class);
+        viewModel.loadSpots();
+        viewModel.getFilteredSpots().observe(this, this::updateMapMarkers);
+
+        btnMyLocation.setOnClickListener(v -> moveToMyLocation());
+        btnFilter.setOnClickListener(v -> showFilterDialog());
+
+        locationListener = new LocationListener() {
+            @Override
+            public void onLocationUpdated(@NonNull Location location) {
+                Point point = location.getPosition();
+                latestUserPoint = point;
+                runOnUiThread(() -> updateUserLocationMarker(point));
+            }
+
+            @Override
+            public void onLocationStatusUpdated(@NonNull LocationStatus locationStatus) {}
+        };
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (viewModel != null) {
+            viewModel.loadSpots();
+        }
+    }
+
+    private void updateMapMarkers(List<SportsSpot> spots) {
+        if (spots == null) spots = new ArrayList<>();
+        spotsCollection.clear();
+        for (SportsSpot spot : spots) {
+            Point point = new Point(spot.getLatitude(), spot.getLongitude());
+            PlacemarkMapObject placemark = spotsCollection.addPlacemark(point);
+            // Используем красный кружок для меток спортивных площадок
+            placemark.setIcon(getSpotIcon());
+            placemark.setUserData(spot);
+            placemark.addTapListener(new MapObjectTapListener() {
+                @Override
+                public boolean onMapObjectTap(@NonNull com.yandex.mapkit.map.MapObject mapObject, @NonNull Point point) {
+                    SportsSpot clickedSpot = (SportsSpot) mapObject.getUserData();
+                    runOnUiThread(() -> showSpotInfoDialog(clickedSpot));
+                    return true;
+                }
+            });
+        }
+    }
+
+    private void showSpotInfoDialog(SportsSpot spot) {
+        String message = "🏟️ " + spot.getName() +
+                "\n\n📍 Адрес: " + spot.getAddress() +
+                "\n\n🏃 Вид спорта: " + spot.getSportType() +
+                "\n\n💡 Освещение: " + (spot.isHasLighting() ? "Есть" : "Отсутствует") +
+                "\n\n🪑 Скамейки: " + (spot.isHasBenches() ? "Есть" : "Отсутствуют") +
+                "\n\n👥 Загруженность: " + spot.getCrowdedness();
+
+        new androidx.appcompat.app.AlertDialog.Builder(this)
+                .setTitle(spot.getName())
+                .setMessage(message)
+                .setPositiveButton("Построить маршрут", (dialog, which) -> buildRoute(spot))
+                .setNegativeButton("Закрыть", null)
+                .show();
+    }
+
+    private void buildRoute(SportsSpot spot) {
+        if (checkSelfPermission(android.Manifest.permission.ACCESS_FINE_LOCATION)
+                == android.content.pm.PackageManager.PERMISSION_GRANTED) {
+            fusedLocationClient.getLastLocation().addOnSuccessListener(this, location -> {
+                if (location != null) {
+                    String url = "https://yandex.ru/maps/?rtext=" +
+                            location.getLatitude() + "," + location.getLongitude() +
+                            "~" + spot.getLatitude() + "," + spot.getLongitude() +
+                            "&rtt=pd";
+                    startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(url)));
+                } else {
+                    String url = "https://yandex.ru/maps/?pt=" + spot.getLongitude() + "," + spot.getLatitude() + "&z=16";
+                    startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(url)));
+                }
+            });
+        } else {
+            String url = "https://yandex.ru/maps/?pt=" + spot.getLongitude() + "," + spot.getLatitude() + "&z=16";
+            startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(url)));
+        }
+    }
+
+    private void moveToMyLocation() {
+        if (checkSelfPermission(android.Manifest.permission.ACCESS_FINE_LOCATION)
+                != android.content.pm.PackageManager.PERMISSION_GRANTED) {
+            requestPermissions(new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION}, LOCATION_PERMISSION_REQUEST_CODE);
+            return;
+        }
+
+        if (latestUserPoint != null) {
+            updateUserLocationMarker(latestUserPoint);
+            centerMapOnPoint(latestUserPoint);
+            return;
+        }
+
+        CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
+        fusedLocationClient.getCurrentLocation(Priority.PRIORITY_HIGH_ACCURACY, cancellationTokenSource.getToken())
+                .addOnSuccessListener(this, location -> {
+                    if (location == null) {
+                        Toast.makeText(this, "Не удалось определить местоположение", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                    Point point = new Point(location.getLatitude(), location.getLongitude());
+                    latestUserPoint = point;
+                    updateUserLocationMarker(point);
+                    centerMapOnPoint(point);
+                })
+                .addOnFailureListener(this,
+                        e -> Toast.makeText(this, "Ошибка получения местоположения", Toast.LENGTH_SHORT).show());
+    }
+
+    private void centerMapOnPoint(@NonNull Point point) {
+        mapView.getMap().move(new CameraPosition(point, USER_LOCATION_ZOOM, 0.0f, 0.0f));
+    }
+
+    private void updateUserLocationMarker(@NonNull Point point) {
+        if (userLocationPlacemark == null) {
+            userLocationPlacemark = userLocationCollection.addPlacemark(point);
+        } else {
+            userLocationPlacemark.setGeometry(point);
+        }
+        userLocationPlacemark.setIcon(getUserLocationIcon());
+    }
+
+    // Метод для создания красного кружка (метки спортивных площадок)
+    private ImageProvider getSpotIcon() {
+        float density = getResources().getDisplayMetrics().density;
+        int iconSizePx = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 30, getResources().getDisplayMetrics());
+
+        Bitmap bitmap = Bitmap.createBitmap(iconSizePx, iconSizePx, Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(bitmap);
+
+        // Красная заливка
+        Paint fillPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        fillPaint.setColor(Color.parseColor("#FF0000")); // Ярко-красный
+
+        // Белая обводка для контраста
+        Paint strokePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        strokePaint.setStyle(Paint.Style.STROKE);
+        strokePaint.setStrokeWidth(2f * density);
+        strokePaint.setColor(Color.WHITE);
+
+        float center = iconSizePx / 2f;
+        float radius = iconSizePx / 2f - (2f * density);
+        canvas.drawCircle(center, center, radius, fillPaint);
+        canvas.drawCircle(center, center, radius, strokePaint);
+
+        return ImageProvider.fromBitmap(bitmap);
+    }
+
+    // Метод для создания фиолетового кружка (метка местоположения пользователя)
+    private ImageProvider getUserLocationIcon() {
+        if (userLocationIconProvider != null) {
+            return userLocationIconProvider;
+        }
+
+        float density = getResources().getDisplayMetrics().density;
+        int iconSizePx = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 25, getResources().getDisplayMetrics());
+
+        Bitmap bitmap = Bitmap.createBitmap(iconSizePx, iconSizePx, Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(bitmap);
+
+        Paint fillPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        fillPaint.setColor(Color.parseColor("#9C27B0")); // Фиолетовый
+
+        Paint strokePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        strokePaint.setStyle(Paint.Style.STROKE);
+        strokePaint.setStrokeWidth(3f * density);
+        strokePaint.setColor(Color.WHITE);
+
+        float center = iconSizePx / 2f;
+        float radius = iconSizePx / 2f - (2f * density);
+        canvas.drawCircle(center, center, radius, fillPaint);
+        canvas.drawCircle(center, center, radius, strokePaint);
+
+        userLocationIconProvider = ImageProvider.fromBitmap(bitmap);
+        return userLocationIconProvider;
+    }
+
+    @SuppressLint("MissingPermission")
+    private void startLocationUpdates() {
+        if (checkSelfPermission(android.Manifest.permission.ACCESS_FINE_LOCATION)
+                != android.content.pm.PackageManager.PERMISSION_GRANTED) {
+            return;
+        }
+        if (isLocationUpdatesSubscribed) {
+            return;
+        }
+        locationManager.subscribeForLocationUpdates(0.0, 1000, 0.0, true, FilteringMode.OFF, locationListener);
+        isLocationUpdatesSubscribed = true;
+    }
+
+    private void stopLocationUpdates() {
+        if (!isLocationUpdatesSubscribed || locationManager == null || locationListener == null) {
+            return;
+        }
+        locationManager.unsubscribe(locationListener);
+        isLocationUpdatesSubscribed = false;
+    }
+
+    private void showFilterDialog() {
+        String[] sportTypes = {"all", "Футбол", "Баскетбол", "Волейбол", "Теннис", "Бег", "Воркаут"};
+        String[] displayNames = {"Все", "Футбол", "Баскетбол", "Волейбол", "Теннис", "Бег", "Воркаут"};
+        new androidx.appcompat.app.AlertDialog.Builder(this)
+                .setTitle("Фильтр по виду спорта")
+                .setItems(displayNames, (dialog, which) -> viewModel.setSelectedSportType(sportTypes[which]))
+                .setNegativeButton("Отмена", null)
+                .show();
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == LOCATION_PERMISSION_REQUEST_CODE && grantResults.length > 0
+                && grantResults[0] == android.content.pm.PackageManager.PERMISSION_GRANTED) {
+            startLocationUpdates();
+            moveToMyLocation();
+        }
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        MapKitFactory.getInstance().onStart();
+        mapView.onStart();
+        startLocationUpdates();
+    }
+
+    @Override
+    protected void onStop() {
+        stopLocationUpdates();
+        mapView.onStop();
+        MapKitFactory.getInstance().onStop();
+        super.onStop();
+    }
+}
